@@ -1,0 +1,22 @@
+seed: 42
+device: auto
+
+data:
+  dataset: mnist
+  root: data
+  batch_size: 128
+  num_workers: 2
+
+model:
+  input_dim: 784
+  hidden_dim: 400
+  latent_dim: 50
+
+train:
+  epochs: 20
+  learning_rate: 0.001
+  log_interval: 100
+
+output:
+  run_dir: experiments/mnist_mlp/latent50_e20
+  run_name: latent50_e20
