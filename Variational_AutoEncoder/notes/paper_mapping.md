@@ -19,7 +19,7 @@ Code:
 For MNIST, the first version uses a Bernoulli likelihood:
 
 ```math
-p_{\theta}(x \mid z)=\prod_{j=1}^{784}\operatorname{Bernoulli}(x_j;\pi_{\theta,j}(z))
+p_{\theta}(x \mid z)=\prod_{j=1}^{784}\mathrm{Bernoulli}(x_j;\pi_{\theta,j}(z))
 ```
 
 In code, `decoder(z)` returns pixel probabilities:
@@ -44,7 +44,7 @@ Code:
 Gaussian approximate posterior:
 
 ```math
-q_{\phi}(z \mid x)=\mathcal{N}\left(\mu_{\phi}(x),\operatorname{diag}(\sigma_{\phi}^{2}(x))\right)
+q_{\phi}(z \mid x)=\mathcal{N}\left(\mu_{\phi}(x),\mathrm{diag}(\sigma_{\phi}^{2}(x))\right)
 ```
 
 ## Reparameterization
@@ -115,4 +115,3 @@ Code:
 
 - reconstruction loss: `torch.nn.functional.binary_cross_entropy`
 - KL loss: closed-form diagonal Gaussian KL
-
