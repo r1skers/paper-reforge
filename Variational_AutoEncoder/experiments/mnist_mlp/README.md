@@ -57,8 +57,12 @@ Notes:
 
 Generated files:
 
-- `latent2_e20/runs/latent2_e20/visualizations/latent_scatter.png`
-- `latent2_e20/runs/latent2_e20/visualizations/latent_manifold.png`
+- `runs/latent2_e20/visualizations/latent_scatter.png`
+- `runs/latent2_e20/visualizations/latent_manifold.png`
+
+![latent_dim=2 scatter](runs/latent2_e20/visualizations/latent_scatter.png)
+
+![latent_dim=2 manifold](runs/latent2_e20/visualizations/latent_manifold.png)
 
 Observations:
 

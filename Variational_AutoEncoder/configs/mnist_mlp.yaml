@@ -10,7 +10,7 @@ data:
 model:
   input_dim: 784
   hidden_dim: 400
-  latent_dim: 50
+  latent_dim: 20
 
 train:
   epochs: 20
@@ -18,5 +18,5 @@ train:
   log_interval: 100
 
 output:
-  run_dir: experiments/mnist_mlp/latent50_e20
-  run_name: latent50_e20
+  run_dir: experiments/mnist_mlp
+  run_name: latent20_e20

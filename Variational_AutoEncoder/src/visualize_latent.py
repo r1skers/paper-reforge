@@ -91,11 +91,11 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--checkpoint",
-        default="experiments/mnist_mlp/latent2_e20/runs/latent2_e20/checkpoints/latest.pt",
+        default="experiments/mnist_mlp/runs/latent2_e20/checkpoints/latest.pt",
     )
     parser.add_argument(
         "--output-dir",
-        default="experiments/mnist_mlp/latent2_e20/runs/latent2_e20/visualizations",
+        default="experiments/mnist_mlp/runs/latent2_e20/visualizations",
     )
     parser.add_argument("--device", default="auto")
     parser.add_argument("--max-points", type=int, default=5000)
