@@ -22,13 +22,23 @@ The current baseline is an MLP VAE with:
 - latent dimension comparison: 2, 20, 50
 - 2D latent scatter and manifold visualization
 
+The next comparison model is a CNN VAE with:
+
+- MNIST kept as `[batch, channel, height, width]` image tensors in the encoder
+- strided convolution downsampling from `28x28` to `14x14` to `7x7`
+- `mu` and `logvar` predicted from the flattened convolutional feature map
+- transposed convolution upsampling from `7x7` to `14x14` to `28x28`
+- the same negative ELBO objective as the MLP baseline
+
 ## Project Layout
 
 ```text
 configs/
   mnist_mlp.yaml
+  mnist_cnn.yaml
 src/
   models/vae_mlp.py
+  models/vae_cnn.py
   data.py
   losses.py
   train.py
@@ -62,16 +72,22 @@ pip install -r requirements.txt
 
 ## Train
 
-Edit `configs/mnist_mlp.yaml` to choose `latent_dim` and `run_name`, then run:
+Edit `configs/mnist_mlp.yaml` to choose `latent_dim` and `run_name`, then run the MLP baseline:
 
 ```powershell
 python -m src.train --config configs/mnist_mlp.yaml
 ```
 
+Run the CNN VAE comparison with:
+
+```powershell
+python -m src.train --config configs/mnist_cnn.yaml
+```
+
 Outputs are written to:
 
 ```text
-experiments/mnist_mlp/runs/<run_name>/
+experiments/<experiment_name>/runs/<run_name>/
   checkpoints/
   logs/
   samples/

@@ -8,7 +8,7 @@ from pathlib import Path
 import torch
 from torchvision.utils import save_image
 
-from src.models.vae_mlp import VAE
+from src.models import build_vae
 from src.utils import ensure_dir, resolve_device
 
 
@@ -27,11 +27,7 @@ def generate_samples(
     cfg = checkpoint["config"]
     model_cfg = cfg["model"]
 
-    model = VAE(
-        input_dim=model_cfg["input_dim"],
-        hidden_dim=model_cfg["hidden_dim"],
-        latent_dim=model_cfg["latent_dim"],
-    ).to(device)
+    model = build_vae(model_cfg).to(device)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
 

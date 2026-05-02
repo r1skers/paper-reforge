@@ -1,4 +1,4 @@
-"""Train a minimal MLP VAE on MNIST."""
+"""Train a minimal VAE on MNIST."""
 
 from __future__ import annotations
 
@@ -12,12 +12,12 @@ from tqdm import tqdm
 
 from src.data import get_mnist_loaders
 from src.losses import vae_loss
-from src.models.vae_mlp import VAE
+from src.models import build_vae
 from src.utils import ensure_dir, load_config, resolve_device, set_seed
 
 
 def train_one_epoch(
-    model: VAE,
+    model: torch.nn.Module,
     train_loader,
     optimizer: optim.Optimizer,
     device: torch.device,
@@ -52,7 +52,7 @@ def train_one_epoch(
 
 
 @torch.no_grad()
-def evaluate(model: VAE, test_loader, device: torch.device) -> tuple[float, float, float]:
+def evaluate(model: torch.nn.Module, test_loader, device: torch.device) -> tuple[float, float, float]:
     model.eval()
     total_loss = 0.0
     total_recon = 0.0
@@ -71,7 +71,7 @@ def evaluate(model: VAE, test_loader, device: torch.device) -> tuple[float, floa
 
 
 @torch.no_grad()
-def save_reconstructions(model: VAE, test_loader, device: torch.device, path: Path) -> None:
+def save_reconstructions(model: torch.nn.Module, test_loader, device: torch.device, path: Path) -> None:
     model.eval()
     x, _ = next(iter(test_loader))
     x = x.to(device)[:8]
@@ -81,7 +81,7 @@ def save_reconstructions(model: VAE, test_loader, device: torch.device, path: Pa
 
 
 @torch.no_grad()
-def save_samples(model: VAE, device: torch.device, path: Path, num_samples: int = 64) -> None:
+def save_samples(model: torch.nn.Module, device: torch.device, path: Path, num_samples: int = 64) -> None:
     model.eval()
     z = torch.randn(num_samples, model.latent_dim, device=device)
     samples = model.decode(z).view(-1, 1, 28, 28)
@@ -110,11 +110,7 @@ def main() -> None:
         num_workers=cfg["data"]["num_workers"],
     )
 
-    model = VAE(
-        input_dim=cfg["model"]["input_dim"],
-        hidden_dim=cfg["model"]["hidden_dim"],
-        latent_dim=cfg["model"]["latent_dim"],
-    ).to(device)
+    model = build_vae(cfg["model"]).to(device)
     optimizer = optim.Adam(model.parameters(), lr=cfg["train"]["learning_rate"])
 
     metrics_path = log_dir / "metrics.csv"

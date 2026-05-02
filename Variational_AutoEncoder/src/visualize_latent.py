@@ -10,19 +10,15 @@ import torch
 from torchvision.utils import save_image
 
 from src.data import get_mnist_loaders
-from src.models.vae_mlp import VAE
+from src.models import build_vae
 from src.utils import ensure_dir, resolve_device
 
 
-def load_model(checkpoint_path: str | Path, device: torch.device) -> tuple[VAE, dict]:
+def load_model(checkpoint_path: str | Path, device: torch.device) -> tuple[torch.nn.Module, dict]:
     checkpoint = torch.load(checkpoint_path, map_location=device)
     cfg = checkpoint["config"]
     model_cfg = cfg["model"]
-    model = VAE(
-        input_dim=model_cfg["input_dim"],
-        hidden_dim=model_cfg["hidden_dim"],
-        latent_dim=model_cfg["latent_dim"],
-    ).to(device)
+    model = build_vae(model_cfg).to(device)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
     return model, cfg
@@ -30,7 +26,7 @@ def load_model(checkpoint_path: str | Path, device: torch.device) -> tuple[VAE, 
 
 @torch.no_grad()
 def plot_latent_scatter(
-    model: VAE,
+    model: torch.nn.Module,
     data_loader,
     device: torch.device,
     output_path: str | Path,
@@ -68,7 +64,7 @@ def plot_latent_scatter(
 
 @torch.no_grad()
 def save_latent_manifold(
-    model: VAE,
+    model: torch.nn.Module,
     device: torch.device,
     output_path: str | Path,
     grid_size: int = 20,
