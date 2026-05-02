@@ -1,0 +1,27 @@
+{
+  "seed": 7,
+  "device": "auto",
+  "data": {
+    "dataset": "mnist",
+    "root": "data",
+    "batch_size": 128,
+    "num_workers": 2
+  },
+  "model": {
+    "type": "lenet5_modern",
+    "input_channels": 1,
+    "input_size": 32,
+    "output_classes": 10,
+    "activation": "ReLU",
+    "channels": "small"
+  },
+  "train": {
+    "epochs": 10,
+    "learning_rate": 0.001
+  },
+  "output": {
+    "run_dir": "experiments/lenet5_modern",
+    "run_name": "relu_small_maxpool_e10"
+  },
+  "resolved_device": "cpu"
+}

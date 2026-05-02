@@ -1,0 +1,10 @@
+layer,shape
+input,128x1x32x32
+C1,128x4x28x28
+S2,128x4x14x14
+C3,128x8x10x10
+S4,128x8x5x5
+C5,128x60x1x1
+flatten,128x60
+F6,128x84
+output_logits,128x10

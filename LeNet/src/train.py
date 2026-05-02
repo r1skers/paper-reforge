@@ -9,12 +9,18 @@ from tqdm import tqdm
 
 from data import get_mnist_loaders
 from models import LeNet5Style
-from utils import append_metrics, ensure_dir, resolve_device, set_seed, write_json, write_shapes
+from utils import append_metrics, ensure_dir, load_config, resolve_device, set_seed, write_json, write_shapes
 
 
 def accuracy_from_logits(logits: torch.Tensor, y: torch.Tensor) -> float:
     predictions = logits.argmax(dim=1)
     return (predictions == y).float().sum().item()
+
+
+def count_parameters(model: nn.Module) -> dict[str, int]:
+    total = sum(parameter.numel() for parameter in model.parameters())
+    trainable = sum(parameter.numel() for parameter in model.parameters() if parameter.requires_grad)
+    return {"total": total, "trainable": trainable}
 
 
 def run_one_epoch(
@@ -100,52 +106,103 @@ def save_curves(metrics_path: Path, output_path: Path) -> None:
     plt.close(fig)
 
 
+def output_dir_from_config(cfg: dict) -> Path:
+    output_cfg = cfg["output"]
+    run_dir = Path(output_cfg["run_dir"])
+    run_name = output_cfg.get("run_name")
+    return run_dir / run_name if run_name else run_dir
+
+
+def apply_cli_overrides(cfg: dict, args: argparse.Namespace) -> dict:
+    if args.seed is not None:
+        cfg["seed"] = args.seed
+    if args.device is not None:
+        cfg["device"] = args.device
+    if args.data_root is not None:
+        cfg["data"]["root"] = args.data_root
+    if args.batch_size is not None:
+        cfg["data"]["batch_size"] = args.batch_size
+    if args.num_workers is not None:
+        cfg["data"]["num_workers"] = args.num_workers
+    if args.epochs is not None:
+        cfg["train"]["epochs"] = args.epochs
+    if args.learning_rate is not None:
+        cfg["train"]["learning_rate"] = args.learning_rate
+    if args.activation is not None:
+        cfg["model"]["activation"] = args.activation
+    if args.channels is not None:
+        cfg["model"]["channels"] = args.channels
+    if args.pooling is not None:
+        cfg["model"]["pooling"] = args.pooling
+    if args.output_dir is not None:
+        cfg["output"]["run_dir"] = args.output_dir
+        cfg["output"]["run_name"] = ""
+    return cfg
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train a LeNet-5 style CNN on MNIST.")
-    parser.add_argument("--epochs", type=int, default=10)
-    parser.add_argument("--batch-size", type=int, default=128)
-    parser.add_argument("--learning-rate", type=float, default=1e-3)
-    parser.add_argument("--seed", type=int, default=7)
-    parser.add_argument("--device", default="auto")
-    parser.add_argument("--num-workers", type=int, default=2)
-    parser.add_argument("--data-root", default="data")
-    parser.add_argument("--output-dir", default="outputs/run_lenet5_style")
+    parser.add_argument("--config", default="configs/modern.yaml")
+    parser.add_argument("--epochs", type=int)
+    parser.add_argument("--batch-size", type=int)
+    parser.add_argument("--learning-rate", type=float)
+    parser.add_argument("--activation", choices=["relu", "tanh", "sigmoid"])
+    parser.add_argument("--channels", choices=["small", "classic", "large"])
+    parser.add_argument("--pooling", choices=["maxpool",  "avgpool"])
+    parser.add_argument("--seed", type=int)
+    parser.add_argument("--device")
+    parser.add_argument("--num-workers", type=int)
+    parser.add_argument("--data-root")
+    parser.add_argument("--output-dir")
     args = parser.parse_args()
 
-    set_seed(args.seed)
-    device = resolve_device(args.device)
+    cfg = apply_cli_overrides(load_config(args.config), args)
 
-    output_dir = ensure_dir(args.output_dir)
+    set_seed(cfg["seed"])
+    device = resolve_device(cfg["device"])
+
+    output_dir = ensure_dir(output_dir_from_config(cfg))
     checkpoint_dir = ensure_dir(output_dir / "checkpoints")
     metrics_path = output_dir / "metrics.csv"
 
-    write_json(output_dir / "config.json", vars(args) | {"resolved_device": str(device)})
+    write_json(output_dir / "config.json", cfg | {"resolved_device": str(device)})
 
     train_loader, test_loader = get_mnist_loaders(
-        data_root=args.data_root,
-        batch_size=args.batch_size,
-        num_workers=args.num_workers,
+        data_root=cfg["data"]["root"],
+        batch_size=cfg["data"]["batch_size"],
+        num_workers=cfg["data"]["num_workers"],
     )
 
-    model = LeNet5Style().to(device)
+    model = LeNet5Style(
+        activation=cfg["model"].get("activation", "relu"),
+        channels=cfg["model"].get("channels", "classic"),
+        pooling=cfg["model"].get("pooling", "maxpool"),
+    ).to(device)
+    parameter_counts = count_parameters(model)
+    write_json(output_dir / "model_summary.json", parameter_counts)
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
+    optimizer = optim.Adam(model.parameters(), lr=cfg["train"]["learning_rate"])
 
     sample_x, _ = next(iter(train_loader))
-    sample_x = sample_x[: args.batch_size].to(device)
+    sample_x = sample_x[: cfg["data"]["batch_size"]].to(device)
     with torch.no_grad():
         _, shapes = model(sample_x, return_shapes=True)
     write_shapes(output_dir / "layer_shapes.csv", shapes)
 
     print(f"device: {device}")
     print(f"output_dir: {output_dir.resolve()}")
+    print(
+        "parameters: "
+        f"total={parameter_counts['total']:,} "
+        f"trainable={parameter_counts['trainable']:,}"
+    )
     print("layer shapes:")
     for layer, shape in shapes.items():
         print(f"  {layer}: {shape}")
 
     fields = ["epoch", "train_loss", "train_accuracy", "test_loss", "test_accuracy"]
     best_test_acc = 0.0
-    for epoch in range(1, args.epochs + 1):
+    for epoch in range(1, cfg["train"]["epochs"] + 1):
         train_loss, train_acc = run_one_epoch(
             model=model,
             loader=train_loader,
@@ -182,7 +239,7 @@ def main() -> None:
             "model_state_dict": model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict(),
             "test_accuracy": test_acc,
-            "args": vars(args),
+            "config": cfg,
         }
         torch.save(state, checkpoint_dir / "latest.pt")
         if test_acc >= best_test_acc:

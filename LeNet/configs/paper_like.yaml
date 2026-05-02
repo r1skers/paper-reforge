@@ -1,0 +1,22 @@
+seed: 7
+device: auto
+
+data:
+  dataset: mnist
+  root: data
+  batch_size: 128
+  num_workers: 2
+
+model:
+  type: lenet5_paper_like
+  input_channels: 1
+  input_size: 32
+  output_classes: 10
+
+train:
+  epochs: 10
+  learning_rate: 0.001
+
+output:
+  run_dir: experiments/lenet5_paper_like
+  run_name: scaled_tanh_subsampling_rbf_e10

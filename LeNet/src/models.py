@@ -6,6 +6,43 @@ import torch
 from torch import nn
 
 
+def build_pooling(name: str) -> nn.Module:
+    poolings = {
+        "max": nn.MaxPool2d,
+        "maxpool": nn.MaxPool2d,
+        "avg": nn.AvgPool2d,
+        "avgpool": nn.AvgPool2d,
+    }
+    key = name.lower()
+    if key not in poolings:
+        raise ValueError(f"Unsupported pooling: {name}")
+    return poolings[key](kernel_size=2, stride=2)
+
+
+def build_channel_config(name: str) -> list[int]:
+    channel_configs = {
+        "classic": [6, 16, 120],
+        "small": [4, 8, 60],
+        "large": [12, 32, 240],
+    }
+    key = name.lower()
+    if key not in channel_configs:
+        raise ValueError(f"Unsupported channel config: {name}")
+    return channel_configs[key]
+
+
+def build_activation(name: str) -> nn.Module:
+    activations = {
+        "relu": nn.ReLU,
+        "tanh": nn.Tanh,
+        "sigmoid": nn.Sigmoid,
+    }
+    key = name.lower()
+    if key not in activations:
+        raise ValueError(f"Unsupported activation: {name}")
+    return activations[key]()
+
+
 class LeNet5Style(nn.Module):
     """Modern LeNet-style CNN for 32x32 MNIST classification.
 
@@ -14,16 +51,22 @@ class LeNet5Style(nn.Module):
     CrossEntropyLoss.
     """
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        activation: str = "relu",
+        channels: str = "classic",
+        pooling: str = "maxpool",
+    ) -> None:
         super().__init__()
-        self.c1 = nn.Conv2d(1, 6, kernel_size=5)
-        self.s2 = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.c3 = nn.Conv2d(6, 16, kernel_size=5)
-        self.s4 = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.c5 = nn.Conv2d(16, 120, kernel_size=5)
-        self.f6 = nn.Linear(120, 84)
+        channels = build_channel_config(channels)
+        self.c1 = nn.Conv2d(1, channels[0], kernel_size=5)
+        self.s2 = build_pooling(pooling)
+        self.c3 = nn.Conv2d(channels[0], channels[1], kernel_size=5)
+        self.s4 = build_pooling(pooling)
+        self.c5 = nn.Conv2d(channels[1], channels[2], kernel_size=5)
+        self.f6 = nn.Linear(channels[2], 84)
         self.classifier = nn.Linear(84, 10)
-        self.activation = nn.ReLU()
+        self.activation = build_activation(activation)
 
     def forward(
         self,

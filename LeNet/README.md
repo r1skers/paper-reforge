@@ -43,7 +43,7 @@ input 1x32x32
 Run:
 
 ```powershell
-python .\src\train_paper.py --data-root ..\Variational_AutoEncoder\data --epochs 10 --output-dir outputs\paper_like
+python .\src\train_paper.py --config configs\paper_like.yaml
 ```
 
 This version uses the paper-like details:
@@ -84,13 +84,13 @@ smaller distance -> larger class score
 Run:
 
 ```powershell
-python .\src\train.py --data-root ..\Variational_AutoEncoder\data --epochs 10 --output-dir outputs\modern
+python .\src\train.py --config configs\modern.yaml
 ```
 
 This version keeps the LeNet shape progression but uses common modern CNN choices:
 
 - full channel connectivity in C3,
-- ReLU activations,
+- configurable `relu` / `tanh` / `sigmoid` activations,
 - max pooling for S2/S4,
 - linear logits with `CrossEntropyLoss`.
 
@@ -115,18 +115,39 @@ Modern 20 epochs:
 python .\src\train.py --epochs 20
 ```
 
-Reuse the MNIST data already downloaded by the VAE project:
+Paper-like training, 10 epochs:
 
 ```powershell
-python .\src\train.py --data-root ..\Variational_AutoEncoder\data --epochs 10
+python .\src\train_paper.py
 ```
+
+Override the configured output directory for a quick experiment:
+
+```powershell
+python .\src\train.py --output-dir experiments\scratch\modern_test
+```
+
+Visualize learned C1 filters and intermediate feature maps:
+
+```powershell
+python .\src\visualize_filters.py --checkpoint experiments\lenet5_modern\relu_large_maxpool_e10\checkpoints\best.pt
+```
+
+This writes images to a `visualizations/` folder next to the checkpoint run by default.
 
 ## Outputs
 
-Default output directory:
+Default output directories are controlled by the config files:
 
 ```text
-outputs/run_lenet5_style/
+configs/modern.yaml
+configs/paper_like.yaml
+```
+
+The output path is:
+
+```text
+output.run_dir / output.run_name
 ```
 
 Files:
