@@ -20,3 +20,32 @@ Reading focus:
 3. Architecture: 5 convolutional layers + 3 fully connected layers.
 4. ReLU, local response normalization, overlapping max pooling, dropout, data augmentation.
 5. How to make a lightweight reproduction without training full ImageNet.
+
+## Lightweight Reproduction
+
+Setup:
+
+```powershell
+pip install -r requirements.txt
+```
+
+Inspect the paper-style layer shapes with a dummy 227x227 RGB input:
+
+```powershell
+python .\src\inspect_shapes.py --model paper
+```
+
+This writes:
+
+```text
+outputs/layer_shapes.csv
+```
+
+Run pretrained AlexNet inference on a local image:
+
+```powershell
+python .\src\predict_pretrained.py path\to\image.jpg
+```
+
+The pretrained script uses torchvision's ImageNet weights. The first run may
+download the checkpoint automatically.
