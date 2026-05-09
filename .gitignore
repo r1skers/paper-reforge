@@ -1,0 +1,11 @@
+# Local datasets
+**/data/
+
+# Python cache
+**/__pycache__/
+*.py[cod]
+
+# Model checkpoints and training weights
+*.pt
+*.pth
+*.ckpt

@@ -1,0 +1,5 @@
+run,best_epoch,best_train_acc,best_test_acc,last_epoch,last_train_acc,last_test_acc
+plain20,9,0.7918,0.7513,10,0.8009,0.7475
+plain56,9,0.4412,0.4320,10,0.4542,0.4067
+resnet20,9,0.8237,0.8052,10,0.8336,0.7534
+resnet56,10,0.8353,0.8157,10,0.8353,0.8157

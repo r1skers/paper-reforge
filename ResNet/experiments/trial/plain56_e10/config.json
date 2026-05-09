@@ -1,0 +1,24 @@
+{
+  "model": "plain",
+  "depth": 56,
+  "epochs": 10,
+  "batch_size": 128,
+  "lr": 0.1,
+  "momentum": 0.9,
+  "weight_decay": 0.0001,
+  "milestones": [
+    10,
+    15
+  ],
+  "gamma": 0.1,
+  "num_workers": 2,
+  "seed": 0,
+  "data_dir": "data",
+  "output_dir": "experiments\\trial\\plain56_e10",
+  "fake_data": false,
+  "max_train_batches": null,
+  "max_test_batches": null,
+  "no_progress": false,
+  "device": "cpu",
+  "parameters": 853018
+}

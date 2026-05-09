@@ -178,9 +178,10 @@ AlexNet:
 
 - Read the paper or a faithful summary.
 - Calculate layer shapes manually.
-- Implement or agent-generate a clean AlexNet reproduction skeleton.
-- Personally modify at least two model or training components.
-- Run a small dataset version if full ImageNet is unrealistic.
+- Implement a clean paper-style AlexNet reproduction skeleton.
+- Run shape inspection and verify the 5-conv + 3-fc path.
+- Use pretrained AlexNet inference to understand fixed-label ImageNet classification.
+- Treat small-dataset training as optional, not required for closing the AlexNet note.
 
 Recommended AlexNet experiment alternatives:
 
@@ -782,8 +783,9 @@ Expected output:
 
 - notes
 - shape table
-- simplified reproduction
-- at least one controlled experiment
+- simplified paper-style reproduction
+- pretrained inference demo
+- optional later: CIFAR-10 AlexNet-style ablation
 
 ### VAE
 
@@ -867,18 +869,15 @@ If no, postpone it.
 
 Immediate:
 
-1. Finish AlexNet reading.
-2. Manually calculate AlexNet layer shapes.
-3. Build or generate AlexNet reproduction skeleton.
-4. Personally modify at least two core components.
-5. Add one evaluation or ablation table.
-6. Continue LeetCode at 2-3 problems per week.
-7. Keep notes in this repo.
+1. Finish the AlexNet blog note from the reading and lightweight reproduction.
+2. Read VGG as the next CNN / visual representation milestone.
+3. Continue LeetCode at 2-3 problems per week.
+4. Practice PyTorch model and dataloader modifications.
+5. Keep notes in this repo.
 
 Near term:
 
-1. Read VGG.
-2. Read ResNet carefully.
-3. Practice PyTorch model and dataloader modifications.
-4. Start Transformer after ResNet.
-5. Enter CLIP after Transformer / ViT.
+1. Read ResNet carefully.
+2. Optionally revisit LeNet for a compact ablation table.
+3. Start Transformer after ResNet.
+4. Enter CLIP after Transformer / ViT.
